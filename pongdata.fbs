@@ -1,0 +1,11 @@
+namespace rpiCloudPong;
+
+table ball_properties {
+  x_pos:short;
+  y_pos:short;
+}
+
+table paddle_properties {
+  x_pos:short;
+  y_pos:short;
+}
