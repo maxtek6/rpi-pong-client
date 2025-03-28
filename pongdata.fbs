@@ -9,8 +9,6 @@ table paddle_properties {
   x_pos:short;
   y_pos:short;
 }
-<<<<<<< HEAD
-=======
 
 table game_properties {
 
@@ -19,4 +17,3 @@ table game_properties {
 }
 
 root_type game_properties;
->>>>>>> 5084958 (Initial rpi cloud pong client bring up)

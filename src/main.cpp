@@ -1,10 +1,5 @@
 #include <iostream>
 #include "flatbuffers/flatbuffers.h"
-<<<<<<< HEAD
-
-int main()
-{
-=======
 #include "pongdata_generated.h"
 
 using namespace rpiCloudPong;
@@ -43,6 +38,5 @@ int main()
 
     printf("Ball X: %d, Y: %d\n", game_data->ball()->x_pos(), game_data->ball()->y_pos());
 
->>>>>>> 5084958 (Initial rpi cloud pong client bring up)
     return 0;
 }

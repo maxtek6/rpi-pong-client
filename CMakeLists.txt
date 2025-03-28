@@ -18,12 +18,9 @@ target_link_libraries(flatbuf_sample_target PRIVATE flatbuffers)
 # Include directories
 target_include_directories(flatbuf_sample_target PRIVATE include)
 
-<<<<<<< HEAD
-=======
 # Include directories
 target_include_directories(flatbuf_sample_target
     PRIVATE
         include
         src/include # Adding this directory for additional headers
 )
->>>>>>> 5084958 (Initial rpi cloud pong client bring up)
