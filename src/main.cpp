@@ -1,7 +1,6 @@
-#include <iostream>
-#include "flatbuffers/flatbuffers.h"
-#include "pongdata_generated.h"
+#include "RpiPongClient.hpp" 
 
+using namespace maxtek;
 using namespace rpiCloudPong;
 
 int main()
@@ -38,5 +37,10 @@ int main()
 
     printf("Ball X: %d, Y: %d\n", game_data->ball()->x_pos(), game_data->ball()->y_pos());
 
+    RpiPongClient PongClient;
+    PongClient.connect_to_pong_server();
+    PongClient.joy_init();
+
+    while (true);
     return 0;
 }
