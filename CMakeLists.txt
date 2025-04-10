@@ -5,26 +5,23 @@ project(rpi-pong-client)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Add the FlatBuffers library to our project
-set(FLATBUFFERS_SRC_DIR "${CMAKE_SOURCE_DIR}/external/flatbuffers")
-add_subdirectory(${FLATBUFFERS_SRC_DIR} ${CMAKE_CURRENT_BINARY_DIR}/flatbuffers-build EXCLUDE_FROM_ALL)
+# Set the install directory of flatbuffers which is outside of current project
+set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../flatbuffers/install")
+
+# Find FlatBuffers (this uses the FlatBuffersConfig.cmake from the install)
+find_package(Flatbuffers REQUIRED CONFIG)
 
 # SDL2
 find_package(SDL2 REQUIRED)
 
 # Add the executable target for your project
-add_executable(flatbuf_sample_target src/RpiPongClient.cpp src/main.cpp)
-
-# Link against FlatBuffers
-target_link_libraries(flatbuf_sample_target PRIVATE flatbuffers)
-target_link_libraries(flatbuf_sample_target PRIVATE SDL2)
+add_executable(rpi-pong-client src/RpiPongClient.cpp src/main.cpp)
 
 # Include directories
-target_include_directories(flatbuf_sample_target PRIVATE include)
+target_include_directories(rpi-pong-client PRIVATE ../generated
+                                                         ./include # Adding this directory for additional headers
+                                                         ${CMAKE_SOURCE_DIR}/../flatbuffers/install/include)
 
-# Include directories
-target_include_directories(flatbuf_sample_target
-    PRIVATE
-        include
-        src/include # Adding this directory for additional headers
-)
+# Link FlatBuffers and SDL
+target_link_libraries(rpi-pong-client PRIVATE flatbuffers::flatbuffers)
+target_link_libraries(rpi-pong-client PRIVATE SDL2)

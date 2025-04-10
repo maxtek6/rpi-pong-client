@@ -13,44 +13,32 @@ Make sure you have the following installed:
 cmake
 g++
 
-## Pulling RPI Pong Client and Flatbuffers submodule
+## Prequisite: See readme from parent repo rpi-cloud-pong
+Complete all steps in prerequisite section in README of root project
+https://github.com/maxtek6/rpi-cloud-pong.git
+
+## Building Server
 ```bash
-git clone --recurse-submodule https://github.com/maxtek6/rpi-pong-client.git
+cd <root-of-rpi-cloud-pong>
 cd rpi-pong-client
-cd external/flatbuffers
-git checkout v24.3.25
-```
-Note: Recurse flag is needed since the project requires building flatbuffers from source
-Note: Due to versioning issues when installing flatbuffers from apt, checking out 24.3.25 branch and building that from source is what works for now.
-
-## Building
-1. Build flatbuffer from source (currently need to explictly build this version from source and run the built flatc compiler)
-```bash
-# Go to flatbuffers source directory, build flatc compiler from source and generate header file
-cd <root-dir-proj>
-cd external/flatbuffers
-cmake -G "Unix Makefiles"
-make -j
-./flatc --cpp -o ../../include ../../pongdata.fbs
-
-```
-2. Building rpi-pong-client
-```bash
-# Build rpi client
-cd <root-dir-proj>
 mkdir build
 cd build
 cmake ..
-make
-```
-3. Running test example
-```bash
-cd <root-dir-proj>
-cd build
-./flatbuf_sample_target
+make -j
 ```
 
-## Troubleshooting
+## Running Programs (recommended to be ran in the following order)
+## 1. Run Client
 ```bash
-./build/flatc --version 
+cd <root-of-rpi-cloud-pong>
+cd rpi-pong-server
+./build/rpi-pong-server
+```
+
+## 2. Run Server
+## NOTE: A connected joystick to the machine running client is required!!
+```bash
+cd <root-of-rpi-cloud-pong>
+cd rpi-pong-client
+./build/rpi-pong-client
 ```
