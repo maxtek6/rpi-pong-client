@@ -24,37 +24,26 @@ RpiPongClient::~RpiPongClient()
     // Explicitly call joystick custom deleter to avoid subsytem deinit and 
     // resource clean-up ordering issue
     joystick.reset();
-    initialized = SDL_WasInit(SDL_INIT_EVERYTHING);
-    if ((initialized & SDL_INIT_VIDEO) != 0)
-    {
-        std::cout << "Shutting down SDL video subsystem\n";
-        SDL_QuitSubSystem(SDL_INIT_VIDEO);
-    }
-    else if ((initialized & SDL_INIT_JOYSTICK) != 0)
-    {
-        std::cout << "Shutting down SDL joystick subsystem\n";
-        SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-    }
-    std::cout << "RpiPongClient destructor succesfully completed\n";
+    // we can call SDL_Quit() here regardless of what was initialized
+    SDL_Quit();
+    std::cout << "RpiPongClient destructor successfully completed\n";
 }
 
 void RpiPongClient::joy_init()
 {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS) < 0) {
         throw std::runtime_error(std::string("SDL could not initialize! SDL_Error: ") + SDL_GetError() + "\n");
     }
     std::cout << "Initialized SDL\n";
 
     // Check if a joystick is connected
     if (SDL_NumJoysticks() < 1) {
-        SDL_Quit();
         throw std::runtime_error("No joysticks connected!\n");
     }
 
-    joystick = std::unique_ptr<SDL_Joystick, SDLJoyDeleter>(SDL_JoystickOpen(0));
+    joystick.reset(SDL_JoystickOpen(0));
     if (nullptr == joystick.get())
     {
-        SDL_Quit();
         throw std::runtime_error(std::string("Couldn't open joystick! SDL_Error: ") + SDL_GetError() + "\n");
     }
 
@@ -63,7 +52,7 @@ void RpiPongClient::joy_init()
     joy_event_thread = std::thread([&] { this->process_joy_event(); });
 }
 
-void RpiPongClient::connect_to_pong_server()
+void RpiPongClient::connect_to_pong_server(int max_attempts)
 { 
     // Open up TCP socket to be used for connection to server
     client_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -82,7 +71,8 @@ void RpiPongClient::connect_to_pong_server()
         throw std::runtime_error(std::string("inet_pton error: ") + strerror(errno) + "\n");
     }
 
-    do
+    int attempts = 0;
+    while(!server_connected && attempts < max_attempts)
     {
         if (connect(client_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0 )
         {
@@ -92,10 +82,17 @@ void RpiPongClient::connect_to_pong_server()
         }
         else
         {
-            std::cout << "Succesfully connected to Pong Server\n";
+            std::cout << "Successfully connected to Pong Server\n";
             server_connected = true;
         }
-    } while (!server_connected);
+        attempts++;
+    }
+
+    if (!server_connected)
+    {
+        close(client_fd);
+        throw std::runtime_error(std::string("Could not connect to Pong Server after ") + std::to_string(max_attempts) + " attempts\n");
+    }
 }
 
 void RpiPongClient::event_loop(void)
@@ -119,6 +116,7 @@ void RpiPongClient::process_joy_event()
             std::string test_msg = "Axes event occured\n";
             if (e.type == SDL_JOYAXISMOTION)
             {
+                // TODO: move this into main thread and push both axis values to a queue
                 if (e.jaxis.axis == 0)
                 {   // Left stick X axis
                     std::cout << "Left Stick X: " << e.jaxis.value << std::endl;

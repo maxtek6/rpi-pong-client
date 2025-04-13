@@ -24,31 +24,19 @@
 
 namespace maxtek
 {
-    struct SDLJoyDeleter
-    {
-        void operator()(SDL_Joystick *joystick) const
-        {
-            if (joystick)
-            {
-                SDL_JoystickClose(joystick);
-                std::cout << "Calling custom SDL_Joystick deleter\n";
-            }
-        }
-    };
-
     class RpiPongClient
     {
     public:
         RpiPongClient();
         ~RpiPongClient();
         void joy_init();
-        void connect_to_pong_server();
+        void connect_to_pong_server(int max_attempts = 5);
         void event_loop();
     private:
         int client_fd;
         bool joy_initialized;
         bool server_connected;
-        std::unique_ptr<SDL_Joystick, SDLJoyDeleter> joystick;
+        std::unique_ptr<SDL_Joystick, decltype(&SDL_JoystickClose)> joystick = std::unique_ptr<SDL_Joystick, decltype(&SDL_JoystickClose)>(nullptr, SDL_JoystickClose);
         std::thread joy_event_thread;
         void process_joy_event();
         void client_tx(const void *data, size_t data_len, int flags);
