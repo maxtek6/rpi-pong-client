@@ -26,7 +26,7 @@ RpiPongClient::~RpiPongClient()
     joystick.reset();
     // we can call SDL_Quit() here regardless of what was initialized
     SDL_Quit();
-    std::cout << "RpiPongClient destructor succesfully completed\n";
+    std::cout << "RpiPongClient destructor successfully completed\n";
 }
 
 void RpiPongClient::joy_init()
@@ -82,7 +82,7 @@ void RpiPongClient::connect_to_pong_server(int max_attempts)
         }
         else
         {
-            std::cout << "Succesfully connected to Pong Server\n";
+            std::cout << "Successfully connected to Pong Server\n";
             server_connected = true;
         }
         attempts++;
